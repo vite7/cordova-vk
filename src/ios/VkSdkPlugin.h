@@ -2,7 +2,7 @@
 //  VkSdkPlugin.h
 
 #import <Cordova/CDV.h>
-#import <VKontakte/VKSdk.h>
+#import <VKSdkFramework/VKSdk.h>
 
 @interface VkSdkPlugin : CDVPlugin <VKSdkDelegate>
 {

@@ -2,7 +2,7 @@
 //  VkSdkPlugin.m
 
 #import "VkSdkPlugin.h"
-#import <VKontakte/VKBundle.h>
+#import <VKSdkFramework/VKBundle.h>
 
 @implementation VkSdkPlugin {
     NSString * pluginCallbackId;
