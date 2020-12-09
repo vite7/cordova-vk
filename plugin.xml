@@ -3,7 +3,7 @@
         xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="com.vite7.cordova-vk-alt"
-        version="1.0.5">
+        version="1.0.6">
 
     <name>cordova-vk-alt</name>
     <description>Cordova plugin for integration with vksdk</description>
