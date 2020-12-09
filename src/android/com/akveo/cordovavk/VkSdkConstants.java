@@ -1,4 +1,4 @@
-package com.akveo.cordovavk;
+package com.vite7.cordovavk;
 
 /**
  * @author v.lugovsky

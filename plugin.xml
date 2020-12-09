@@ -2,7 +2,7 @@
 <plugin
         xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        id="com.akveo.cordova-vk"
+        id="com.vite7.cordova-vk"
         version="1.0.2">
 
     <name>cordova-vk</name>
@@ -12,7 +12,7 @@
     </engines>
 
     <license>Apache 2.0 License</license>
-    <author>Akveo</author>
+    <author>vite7</author>
     <keywords>cordova,phonegap,vkontakte,vksdk</keywords>
     <js-module src="www/vksdk.js" name="VkSdk">
         <clobbers target="VkSdk" />
@@ -65,7 +65,7 @@
         <!-- Cordova 2.5+ -->
         <config-file target="config.xml" parent="/*">
             <feature name="VkSdk">
-                <param name="android-package" value="com.akveo.cordovavk.VkSdkPlugin"/>
+                <param name="android-package" value="com.vite7.cordovavk.VkSdkPlugin"/>
             </feature>
         </config-file>
         <config-file target="AndroidManifest.xml" parent="/manifest/application">
@@ -74,7 +74,7 @@
         </config-file>
 
         <source-file src="src/android/vksdk_library" target-dir="./" />
-        <source-file src="src/android/com/akveo/cordovavk" target-dir="src/com/akveo/cordovavk" />
+        <source-file src="src/android/com/vite7/cordovavk" target-dir="src/com/vite7/cordovavk" />
     </platform>
 
 </plugin>
