@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/vite7/cordova-vk.git"
   },
-  "author": "Vladimir Lugovsky",
+  "author": "Vladimir Lugovsky & Victor Shcherbakov",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/vite7/cordova-vk/issues"
