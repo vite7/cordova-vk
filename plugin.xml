@@ -31,7 +31,7 @@
 
         <header-file src="src/ios/VkSdkPlugin.h"/>
         <source-file src="src/ios/VkSdkPlugin.m" />
-        <framework src="src/ios/VKSdkFramework.framework" custom="true"/>
+        <framework src="src/ios/VKSdkFramework.framework" custom="true" embed="true"/>
         <resource-file src="src/ios/VKSdkResources.bundle" />
 
         <config-file target="*-Info.plist" parent="CFBundleURLTypes">
