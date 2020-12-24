@@ -1,6 +1,6 @@
 {
-  "name": "cordova-vk-alt",
-  "version": "1.0.6",
+  "name": "cordova-vk",
+  "version": "1.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,12 +8,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vite7/cordova-vk.git"
+    "url": "git+https://github.com/akveo/cordova-vk.git"
   },
-  "author": "Vladimir Lugovsky & Victor Shcherbakov",
+  "author": "Vladimir Lugovsky",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/vite7/cordova-vk/issues"
+    "url": "https://github.com/akveo/cordova-vk/issues"
   },
-  "homepage": "https://github.com/vite7/cordova-vk#readme"
+  "homepage": "https://github.com/akveo/cordova-vk#readme"
 }

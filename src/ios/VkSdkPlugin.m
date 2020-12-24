@@ -1,8 +1,8 @@
 //
 //  VkSdkPlugin.m
 
+@import VK_ios_sdk;
 #import "VkSdkPlugin.h"
-#import <VKSdkFramework/VKBundle.h>
 
 @implementation VkSdkPlugin {
     NSString * pluginCallbackId;
@@ -10,25 +10,33 @@
     void (^vkCallBackBlock)(NSString *, NSString *, NSString *);
     BOOL inited;
     NSMutableDictionary *loginDetails;
+    NSArray *_permissions;
+    VKSdk* _vkSdk;
+    BOOL _tryToAuthAgain;
 }
 
 @synthesize clientId;
 
 - (void) initVkSdk:(CDVInvokedUrlCommand*)command
 {
+    _permissions = @[@"photos", @"offline"];
     CDVPluginResult* pluginResult = nil;
     
     if (pluginCallbackId == nil) {
         NSString *appId = [[NSString alloc] initWithString:[command.arguments objectAtIndex:0]];
-        sdkInstance = [VKSdk initializeWithAppId:appId];
-        [sdkInstance registerDelegate:self];
-        [sdkInstance setUiDelegate:self];
+        _vkSdk = [VKSdk initializeWithAppId:appId];
+        [_vkSdk registerDelegate:self];
+        [_vkSdk setUiDelegate:self];
+        [VKSdk wakeUpSession:_permissions completeBlock:^(VKAuthorizationState state, NSError *error) {
+            if (error) {
+                NSLog(@"VK init error!");
+            }
+        }];
         
         NSLog(@"VkSdkPlugin Plugin initalized");
         
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(myOpenUrl:) name:CDVPluginHandleOpenURLNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(myOpenUrl:) name:CDVPluginHandleOpenURLWithAppSourceAndAnnotationNotification object:nil];
-
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(myOpenUrl:) name:CDVPluginHandleOpenURLNotification object:nil];
         
         NSDictionary *errorObject = @{
             @"eventType" : @"initialized",
@@ -36,14 +44,6 @@
         };
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:errorObject];
         pluginCallbackId = command.callbackId;
-        
-        [VKSdk wakeUpSession:@[@"email"] completeBlock:^(VKAuthorizationState state, NSError *error) {
-            if (state == VKAuthorizationAuthorized) {
-                NSLog(@"VkSdkPlugin Plugin Wake UP OK");
-            } else if (error) {
-                // Some error happened, but you may try later
-            }
-        }];
     } else {
         NSDictionary *errorObject = @{
             @"code" : @"initError",
@@ -99,30 +99,20 @@
 
 -(void)myOpenUrl:(NSNotification*)notification
 {
-    NSURL *url;
-    
-    if ([notification.object isKindOfClass:NSDictionary.class]) {
-        if ([[notification.object valueForKey:@"url"] isKindOfClass:NSURL.class]) {
-            url = [notification.object valueForKey:@"url"];
-        } else {
-            return;
-        }
-    } else if ([notification.object isKindOfClass:NSURL.class]) {
-        url = notification.object;
-    } else {
-        return;
-    }
-    
+    NSURL *url = notification.object[@"url"];
+    if(![url isKindOfClass:NSURL.class]) return;
     BOOL wasHandled = [VKSdk processOpenURL:url fromApplication:nil];
-    if (!wasHandled) {
-        NSLog(@"Error handling token URL");
-    }
 }
 
 -(void)vkLoginWithBlock:(NSArray *)permissions block:(void (^)(NSString *, NSString *, NSString *))block
 {
+    _tryToAuthAgain = true;
     vkCallBackBlock = [block copy];
     [VKSdk authorize: permissions];
+    
+    if (_tryToAuthAgain) {
+        [VKSdk authorize: permissions];
+    }
 }
 
 -(void)logout:(CDVInvokedUrlCommand *)command
@@ -161,60 +151,63 @@
 
 #pragma mark - VKSdkDelegate
 
-/**
- Notifies about authorization was completed, and returns authorization result with new token or error.
- 
- @param result contains new token or error, retrieved after VK authorization.
- */
-- (void)vkSdkAccessAuthorizationFinishedWithResult:(VKAuthorizationResult *)result {
-    if (result.state == VKAuthorizationAuthorized) {
-        if(vkCallBackBlock) vkCallBackBlock(result.token.accessToken, result.token.userId, @"");
-    }
+- (void)vkSdkAuthorizationStateUpdatedWithResult:(VKAuthorizationResult *)result {
+    NSLog(@"State updated");
 }
 
-/**
- Notifies about access error. For example, this may occurs when user rejected app permissions through VK.com
- */
-- (void)vkSdkUserAuthorizationFailed {
+- (void)vkSdkAccessTokenUpdated:(VKAccessToken *)newToken oldToken:(VKAccessToken *)oldToken {
+    NSLog(@"VK Token %@", newToken.accessToken);
+    if(vkCallBackBlock) vkCallBackBlock(newToken.accessToken, newToken.userId, [NSString stringWithFormat:@"%ld", newToken.expiresIn]);
+}
+
+- (void)vkSdkRenewedToken:(VKAccessToken *)newToken
+{
+    NSLog(@"VK Token %@", newToken.accessToken);
+    if(vkCallBackBlock) vkCallBackBlock(newToken.accessToken, newToken.userId, [NSString stringWithFormat:@"%ld", newToken.expiresIn]);
+}
+
+-(void) vkSdkUserDeniedAccess:(VKError*) authorizationError
+{
+    NSLog(@"VK Error %@", authorizationError);
     if(vkCallBackBlock) vkCallBackBlock(nil, nil, nil);
 }
 
-/**
- Notifies about authorization state was changed, and returns authorization result with new token or error.
- 
- If authorization was successfull, also contains user info.
- 
- @param result contains new token or error, retrieved after VK authorization
- */
-- (void)vkSdkAuthorizationStateUpdatedWithResult:(VKAuthorizationResult *)result {
-    if (result.state == VKAuthorizationAuthorized) {
-        if(vkCallBackBlock) vkCallBackBlock(result.token.accessToken, result.token.userId, @"");
-    }
-}
-
-/**
- Notifies about existing token has expired (by timeout). This may occurs if you requested token without no_https scope.
- 
- @param expiredToken old token that has expired.
- */
-- (void)vkSdkTokenHasExpired:(VKAccessToken *)expiredToken {
-    NSLog(@"VK Token Expired: %@", expiredToken.accessToken);
-}
-
-#pragma mark - VKSDKUIDelegate
 
 -(void) vkSdkShouldPresentViewController:(UIViewController *)controller
 {
+    NSLog(@"VK Wants controller!");
+    _tryToAuthAgain = false;
     [[self findViewController] presentViewController:controller animated:YES completion:nil];
 }
 
-- (void)vkSdkDidDismissViewController:(UIViewController *)controller {
-    NSLog(@"Error!");
+-(void) vkSdkTokenHasExpired:(VKAccessToken *)expiredToken
+{
+    
 }
 
-- (void)vkSdkNeedCaptchaEnter:(VKError *)captchaError {
-    NSLog(@"Captcha Error: %@", captchaError);
+- (void)vkSdkAccessAuthorizationFinishedWithResult:(VKAuthorizationResult *)result {
+    NSLog(@"dsds");
 }
 
+
+- (void)vkSdkUserAuthorizationFailed {
+    NSLog(@"dsds2");
+}
+
+
+-(void) vkSdkNeedCaptchaEnter:(VKError *)captchaError
+{
+    NSLog(@"Need captcha %@", captchaError);
+}
+
+-(BOOL)vkSdkAuthorizationAllowFallbackToSafari
+{
+    return NO;
+}
+
+-(BOOL)vkSdkIsBasicAuthorization
+{
+    return YES;
+}
 
 @end

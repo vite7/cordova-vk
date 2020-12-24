@@ -2,12 +2,11 @@
 //  VkSdkPlugin.h
 
 #import <Cordova/CDV.h>
-#import <VKSdkFramework/VKSdk.h>
+@import VK_ios_sdk;
 
 @interface VkSdkPlugin : CDVPlugin <VKSdkDelegate, VKSdkUIDelegate>
 {
     NSString*     clientId;
-    VKSdk*        sdkInstance;
 }
 
 @property (nonatomic, retain) NSString*     clientId;
