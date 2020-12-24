@@ -18,8 +18,6 @@
         <clobbers target="VkSdk" />
     </js-module>
 
-    <dependency id="cordova-plugin-cocoapod-support"/>
-
     <!-- ios -->
     <platform name="ios">
         <preference name="VK_APP_ID" />
@@ -32,8 +30,18 @@
             </feature>
         </config-file>
 
-        <pods-config ios-min-version="8.0" use-frameworks="true"/>
-        <pod name="VK-ios-sdk" />
+        <!-- VK SDK -->
+        <podspec>
+            <config>
+                <source url="https://cdn.cocoapods.org/"/>
+            </config>
+            <pods use-frameworks="true">
+                <pod name="VK-ios-sdk" />
+                <pod name="FBSDKCoreKit" spec="5.15.0"/>
+                <pod name="FBSDKLoginKit" spec="5.15.0"/>
+                <pod name="FBSDKShareKit" spec="5.15.0"/>
+            </pods>
+        </podspec>
 
         <header-file src="src/ios/VkSdkPlugin.h"/>
         <source-file src="src/ios/VkSdkPlugin.m" />
