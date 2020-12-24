@@ -37,9 +37,6 @@
             </config>
             <pods use-frameworks="true">
                 <pod name="VK-ios-sdk" />
-                <pod name="FBSDKCoreKit" spec="5.15.0"/>
-                <pod name="FBSDKLoginKit" spec="5.15.0"/>
-                <pod name="FBSDKShareKit" spec="5.15.0"/>
             </pods>
         </podspec>
 
